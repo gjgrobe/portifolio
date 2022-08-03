@@ -11,6 +11,9 @@ def btclick():
 
 
 def enviainformacoesbd(nome, cpf):
+    '''
+    FUNÇÃO RESPONSAVEL POR GRAVAR OS DADOS EM UM BANCO FIREBASE, ONLINE.
+    '''
     nome = nome.get()
     cpf = cpf.get()
     variavel = '{' + '"Nome"' + ' : ' + '"' + nome + \
@@ -24,7 +27,9 @@ def enviainformacoesbd(nome, cpf):
 
 
 def format_cpf(event=None):
-
+    '''
+    FUNÇÃO RESPONSAVEL POR FORMATAR O CEP 00000-000
+    '''
     text = texto2.get().replace(".", "").replace("-", "")[:11]
     new_text = ""
 
