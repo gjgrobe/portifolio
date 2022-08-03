@@ -14,8 +14,8 @@ from tkcalendar import Calendar, DateEntry
 from datetime import datetime
 from tkinter import filedialog as dlg
 
-
 # pyinstaller --onefile --noconsole --hidden-import babel.numbers .\atualizaservicosmensais\descontosnaoduplicado.py
+# Quando usado a bibliotec tkcalendar, incluir --hidden-import babel.numbers na compilação do executável
 
 def enginebd():
     conn_str = (
@@ -118,6 +118,10 @@ class descontosAssociados:
         return (link)
 
     def lerDesconto(self):
+        '''
+        FUNÇÃO QUE CARREGA OS DADOS, TRANSFORMA EM DATAFRAME PANDAS E CLASSIFICA BASEADO NAS COLUNAS, PARA IDENTIFICAR
+        DE QUAL ÓRGÃO VEIO O ARQUIVO.
+        '''
         dados = self.carregaArquivo()
         #dados = ("./atualizaservicosmensais/Descontos Sindicato.xls")
         df = pd.read_excel(dados)
@@ -132,6 +136,9 @@ class descontosAssociados:
         return (dfnew)
 
     def gravaDesconto(self, idFatura, dtQuitacao, IDBanco):
+        '''
+        FUNÇÃO QUE FAZ TODO O TRATAMENTO PARA A CORRETA INSERÇÃO DOS DADOS, APÓS O USUARIO SELECIONAR A FATURA, DATA DE QUITAÇÃO E CONTA.
+        '''
         df = self.lerDesconto()
         engine = enginebd()
         Session = sessionmaker(bind = engine)
@@ -251,11 +258,11 @@ class descontosAssociados:
                     diferencav = (valor - valororiginal)
                     id = ultimoID + 1
                     if diferencav > 0 :
-                        engine.execute(qdtQuitacaoAcrescimo, dtQuitacao, diferencav, idvencimento)
+                        engine.execute(qdtQuitacaoAcrescimo, dtQuitacao, diferencav, idvencimento) #QUITA A PARCELA A INCLUI UM ACRESCIMO
                     elif (diferencav < 0):
                         diferencav = (diferencav * -1)
-                        engine.execute(qdtQuitacaoDesconto, dtQuitacao, diferencav, idvencimento)
-                        diferencav = (diferencav * -1)
+                        engine.execute(qdtQuitacaoDesconto, dtQuitacao, diferencav, idvencimento) #QUITA A PARCELA E INCLUI UM DESCONTO
+                        diferencav = (diferencav * -1) #EH MULTIPLICADO NOVAMENTE PARA QUE NA INCONSISTÊNCIA SAIA NEGATIVO, POIS A PARCELA FOI GERADA A MAIS DO QUE FOI DESCONTADO NA REALIDADE.
                     quitar = NOTAS_PARCELAS_RECEITAS_TIPO_RECEBIMENTO(ID = id, ChequeAgencia = agencia, ChequeConta = conta, ChequePreDatado = 0, IDVencimento = idvencimento, TipoRecebimento = 0,
                                                                     Compensado = 1, ChequeBomPara = dtQuitacao, CodiElo = 0, Valor = valor, CompensadoEm = dtQuitacao, IDBanco = IDBanco, IDCartao = 0,
                                                                     DataMovimento = dtQuitacao, ChequeTipo = 0, ChequeExportarTroca = 1, ChequeTroco = 0.00)
@@ -269,14 +276,17 @@ class descontosAssociados:
         valoresdiferentes = pd.DataFrame(listadiferentes)
         valoresdiferentes.rename(columns = {0:'Inconsistencia', 1:'Linha do Arquivo', 2:'Matricula', 3:'Nome', 4: 'VALOR DO DESCONTO', 5:'VALOR LANÇADO NO SUPERA', 6:'Diferenca (VALOR DESCONTO - VALOR SUPERA)'}, inplace = True)
         #print(valoresdiferentes.head(50))
-        path = 'inconsistencia-' + str(datetime.now().strftime('%Y-%m-%d %H-%M-%S')) + '.xlsx'
+        path = 'inconsistencia-' + str(datetime.now().strftime('%Y-%m-%d %H-%M-%S')) + '.xlsx' #GERA UM PATH DO ARQUIVO COM DATA E HORA
         #valoresdiferentes.to_excel('inconsistencias.xlsx', engine='xlsxwriter', index = False)
         valoresdiferentes.to_excel(path, index = False)
-        #valoresdiferentes.to_excel('./atualizaservicosmensais/inconsistencias.xlsx', index = False)
+        #valoresdiferentes.to_excel('./atualizaservicosmensais/inconsistencias.xlsx', index = False) #EXPORTA EM EXCEL, SEM O ÍNDICE.
         lbresposta['text'] = 'Foram quitados com sucesso ' + str(contaNota) + ' registros e geradas ' + str(contaInconsistencias) + ' inconsistências e ' + str(contaDuplicado) + ' já quitados.'
         lbresposta2['text'] = 'Foi criado o arquivo ' + path + ' de inconsistências para conferência.'
     
     def cFatura(self):
+        '''
+        FUNÇÃO PARA ENCONTRAR A LISTA DE FATURAS GERADAS E CRIA UMA LISTA A PARTIR DISSO PARA APARECER NA INTERFACE GRÁFICA.
+        '''
         engine = enginebd()
         qFatura = "select DESCRICAO, IDFatura FROM FATURA_CABECALHO where idFatura > 0 order by FaturaNumero desc"
         cFatura = []
@@ -293,6 +303,9 @@ class descontosAssociados:
         return (cFatura)
 
     def banco(self):
+        '''
+        FUNÇÃO PARA ENCONTRAR A LISTA DE BANCOS CONFIGURADOS E CRIA UMA LISTA A PARTIR DISSO PARA APARECER NA INTERFACE GRÁFICA.
+        '''
         engine = enginebd()
         qIDBanco = "select NumeroConta, idBanco from BANCOS where Inativo = 0 and IDBanco >= 0"
         listaBanco = []
@@ -354,9 +367,11 @@ def print_sel():
 cal = Calendar(root, font="Arial 14", selectmode='day', locale='pt_BR', cursor="hand1")
 cal.pack(pady = 150)
 
+### CRIAÇÃO DO BOTÃO DE AÇÃO PARA EXECUTAR A ROTINA ####
 confirma = ttk.Button(root, text = 'RECEBER OS DESCONTOS', command = lambda: dA.gravaDesconto(idFatura = get_index(), dtQuitacao= print_sel(), IDBanco= get_index_banco()) )
 confirma.place(width=700, height=50, x=150, y=410)
 
+### CRIAÇÃO DAS LABELS DE RESPOSTA ####
 lbresposta = ttk.Label(root, font="Arial 12", text = '*IMPORTANTE! ANTES DE EXECUTAR A ROTINA, FAÇA UM BACKUP DO SISTEMA!*')
 lbresposta.place(width=700, height=50, x=150, y=480)
 
