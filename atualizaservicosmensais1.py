@@ -10,8 +10,8 @@ def enginebd():
         r'DRIVER={ODBC Driver 11 for SQL Server};'
         r'SERVER=localhost\supera;'
         r'DATABASE=SGE;'
-        r'UID=sa;'
-        r'PWD=Fime2404;'
+        r'UID=*******;'
+        r'PWD=******;'
         r'Trusted_Connection=yes;'
     )
 
