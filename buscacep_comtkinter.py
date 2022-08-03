@@ -1,10 +1,12 @@
 from tkinter import *
 from tkinter import ttk
-
 import requests
 
 
 def pega_cep(cep):
+    '''
+    FUNÇÃO QUE RETORNA ENDEREÇO, CIDADE E ESTADO, USANDO A CONSULTA PELO CEP.
+    '''
     try:
         cep = cep.get()
         link = f"https://cep.awesomeapi.com.br/json/{cep}"
