@@ -162,7 +162,7 @@ class descontosAssociados:
             engine.execute(qConta, IDBanco)
             )
             for partition in result.partitions():
-                # ENCONTRA A AGENCIA E CONTA PARA INCLUIR NA QUITACAO DA PARCELA
+                # ENCONTRA A CONTA PARA INCLUIR NA QUITACAO DA PARCELA
                 for row in partition:
                     conta = row[0]
         listadiferentes = []
