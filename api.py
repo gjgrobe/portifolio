@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import ttk
 import requests
-#from flask import Flask, jsonify
 
 
 def btclick():
