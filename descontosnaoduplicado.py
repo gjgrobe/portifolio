@@ -22,8 +22,8 @@ def enginebd():
         r'DRIVER={ODBC Driver 11 for SQL Server};'
         r'SERVER=localhost\supera;'
         r'DATABASE=SGE;'
-        r'UID=sa;'
-        r'PWD=Fime2404;'
+        r'UID=******;' #OCULTADO O LOGIN, TROCAR QUANDO FOR UTILIZAR.
+        r'PWD=******;' #OCULTADO A SENHA, TROCAR QUANDO FOR UTILIZAR.
         r'Trusted_Connection=yes;'
     )
 
