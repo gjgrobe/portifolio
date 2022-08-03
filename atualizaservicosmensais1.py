@@ -91,9 +91,6 @@ def atualizacc():
     pass
 
 
-
-
-
 janela = Tk()
 janela.title("ATUALIZA VALORES DAS MENSALIDADES")
 janela.geometry("1024x600")
